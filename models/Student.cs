@@ -79,8 +79,9 @@
 
         public IFormFile? ProfileImg { get; set; }
         public string? ProfileImgPath { get; set; }
+        public byte[]? ProfileImgBytes { get; set; }
 
-        
+
     }
 
     public class Gardian : User
@@ -101,6 +102,12 @@
         public Student? Student { get; set; }
 
         // Guardian (nullable if age < 18)
+        public Gardian? Gardian { get; set; }
+    }
+
+    public class StudentWithGardianVM
+    {
+        public Student? Student { get; set; }
         public Gardian? Gardian { get; set; }
     }
 

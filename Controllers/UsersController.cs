@@ -107,7 +107,7 @@ namespace TutorsWorldBackend.Controllers
         public async Task<IActionResult> GetStudentDetails(long id)
         {
             var data = await _usersDAL.GetStudentDataByIdAsync(id);
-            return data != null ? Ok(data) : NotFound();
+            return data != null ? Ok(new { success = true, data = data }) : NotFound();
         }
 
         [Authorize]

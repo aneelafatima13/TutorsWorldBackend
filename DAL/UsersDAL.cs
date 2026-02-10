@@ -53,11 +53,40 @@ namespace TutorsWorldBackend.DAL
             return user;
         }
 
-        public async Task<dynamic> GetStudentDataByIdAsync(long id)
+        public async Task<StudentWithGardianVM?> GetStudentDataByIdAsync(long id)
         {
             using var db = new SqlConnection(_connectionString);
-            return await db.QueryFirstOrDefaultAsync<dynamic>("sp_GetStudentDetailsById",
-                new { StudentId = id }, commandType: CommandType.StoredProcedure);
+
+            using var multi = await db.QueryMultipleAsync(
+                "sp_GetStudentDetailsById",
+                new { StudentId = id },
+                commandType: CommandType.StoredProcedure
+            );
+
+            var student = await multi.ReadFirstOrDefaultAsync<Student>();
+            var gardian = await multi.ReadFirstOrDefaultAsync<Gardian>();
+
+            if (student != null && !string.IsNullOrEmpty(student.ProfileImgPath))
+            {
+                try
+                {
+                    if (System.IO.File.Exists(student.ProfileImgPath))
+                    {
+                        student.ProfileImgBytes = await System.IO.File.ReadAllBytesAsync(student.ProfileImgPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error if file reading fails
+                    Console.WriteLine($"Error reading image: {ex.Message}");
+                }
+            }
+
+            return new StudentWithGardianVM
+            {
+                Student = student,
+                Gardian = gardian
+            };
         }
 
         public async Task<dynamic> GetGuardianDataByIdAsync(long id)
